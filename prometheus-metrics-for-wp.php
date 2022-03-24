@@ -3,7 +3,7 @@
  * Plugin Name: Prometheus Metrics in WordPress
  * Plugin URI: https://github.com/codeatcode/prometheus-metrics-for-wp/
  * Description: Add a custom endpoint for Prometheus
- * Version: 2.0
+ * Version: 2.1
  * Requires at least: 5.6
  * Requires PHP: 7.3
  * Text Domain: prometheus-metrics-for-wp
@@ -38,7 +38,10 @@ add_filter( 'prometheus-metrics-for-wp/is_access_allowed', 'prometheus_is_access
  */
 function prometheus_get_metrics( bool $measure_all ): string {
 
-	include 'includes/_legacy.prometheus_custom_metrics.php';
+    if(defined('PROMETHEUS_INCLUDE_LEGACY_METRICS') && PROMETHEUS_INCLUDE_LEGACY_METRICS) {
+        include 'includes/_legacy.prometheus_custom_metrics.php';
+    }
+
 	/**
 	 * Filter database metrics result
 	 *
@@ -139,7 +142,7 @@ function prometheus_serve_request( bool $served, WP_HTTP_Response $result, WP_RE
 	$metrics = apply_filters( 'prometheus_get_metrics', [] );
 	/** @var $metric Abstract_Metric */
 	foreach ( $metrics as $metric ) {
-		$metric->print_metric( $measure_all );
+        $metric->print_metric( $measure_all );
 	}
 
 	return true;
